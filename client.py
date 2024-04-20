@@ -6,7 +6,7 @@ from constant import *
 
 
 # Definir el host y puerto al que se conectará el cliente
-HOST = '192.168.1.241'  # Dirección IP del servidor
+HOST = '192.168.1.83'  # Dirección IP del servidor
 PORT = 65432        # Puerto del servidor
 
 
@@ -19,17 +19,23 @@ class Cliente:
         self.tablero = None
 
     def recibir_estado(self):
-        data = self.cliente_socket.recv(1024)
-        self.tablero = pickle.loads(data)
-
+        try:
+            data = self.cliente_socket.recv(1024)
+            self.tablero = pickle.loads(data)
+        except Exception as e:
+            print(f"Error en el cliente al recibir datos: {e}")
+            
     def enviar_movimiento(self, fila, columna):
-        data = pickle.dumps((fila, columna))
-        self.cliente_socket.send(data)
+        try:
+            data = pickle.dumps((fila, columna))
+            self.cliente_socket.send(data)
+        except Exception as e:
+            print(f"Error en el cliente al enviar datos: {e}")
 
     def cerrar_conexion(self):
         self.cliente_socket.close()
 
-def Game_online():
+def Game_online(jugador):
     # Estructura del juego
     py.init()
 
@@ -37,7 +43,7 @@ def Game_online():
     py.display.set_caption("El gato")
     clock = py.time.Clock()
 
-    cliente = Cliente('localhost', 65432)
+    cliente = Cliente(HOST, PORT)
     game = True
 
     while game:
@@ -46,7 +52,7 @@ def Game_online():
                 cliente.cerrar_conexion()
                 py.quit()
                 sys.exit()
-            elif event.type == py.MOUSEBUTTONDOWN:
+            elif event.type == py.MOUSEBUTTONDOWN and jugador == cliente.turno:
                 x, y = py.mouse.get_pos()
                 fila = y // TAMANO_CUADRO
                 columna = x // TAMANO_CUADRO
