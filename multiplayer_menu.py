@@ -2,7 +2,7 @@ import pygame as py
 import sys
 from constant import * 
 from server import server
-from client import client
+from client import Game_online
 
 # Clase del botón
 class Button:
@@ -33,7 +33,7 @@ def MultiplayerMenu():
                 if create_button.rect.collidepoint(event.pos):
                     server()
                 elif join_button.rect.collidepoint(event.pos):
-                    print("Se ha unido a una sala")
+                    Game_online()
                 elif back_button.rect.collidepoint(event.pos):
                     return  # Regresar al menú principal
 
