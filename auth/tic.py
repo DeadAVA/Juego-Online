@@ -1,6 +1,7 @@
-import socket
 import pygame
+import socket
 import pickle
+import select
 
 # Configuración del tablero
 BOARD_SIZE = 3
@@ -8,99 +9,81 @@ CELL_SIZE = 100
 SCREEN_WIDTH = BOARD_SIZE * CELL_SIZE
 SCREEN_HEIGHT = BOARD_SIZE * CELL_SIZE
 
-# Función para manejar la conexión con el cliente (Jugador 2 - Cubito Rojo)
-def handle_client(client_socket):
-    try:
-        print("Jugador 2 conectado.")
+# Inicializa el tablero con ' '
+board = [[' ' for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
-        # Configuración de Pygame para la ventana del servidor (cubito azul para Jugador 1)
-        pygame.init()
-        pygame.display.set_caption("jugador 1")
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        clock = pygame.time.Clock()
+def handle_input(client_socket):
+    # Verifica el clic del mouse y actualiza el tablero
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return False
 
-        # Inicializar el tablero como vacío
-        board = [[' ' for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            col = x // CELL_SIZE
+            row = y // CELL_SIZE
 
-        running = True
-        turn = 'X'  # 'X' comienza primero
-        winner = None
+            if board[row][col] == ' ':
+                board[row][col] = 'O'
+                client_socket.sendall(pickle.dumps(board))  # Envía el tablero al cliente
+                return True
 
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+    return True
 
-                if event.type == pygame.MOUSEBUTTONDOWN and winner is None:
-                    x, y = pygame.mouse.get_pos()
-                    col = x // CELL_SIZE
-                    row = y // CELL_SIZE
+def draw_board(screen):
+    # Dibuja el tablero en la pantalla
+    screen.fill((255, 255, 255))  # Fondo blanco
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            pygame.draw.rect(screen, (0, 0, 0), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
+            if board[row][col] != ' ':
+                font = pygame.font.Font(None, 100)
+                text_surface = font.render(board[row][col], True, (255, 0, 0))
+                screen.blit(text_surface, (col * CELL_SIZE + 20, row * CELL_SIZE + 20))
 
-                    # Verificar si la casilla está vacía y es el turno del jugador
-                    if board[row][col] == ' ' and turn == 'X':
-                        board[row][col] = 'X'
-                        turn = 'O'  # Cambiar turno
+    pygame.display.flip()
 
-            # Envía el estado actual del tablero al cliente (Jugador 2)
-            client_socket.sendall(pickle.dumps(board))
+def main():
+    # Configuración de Pygame para la ventana del servidor
+    pygame.init()
+    pygame.display.set_caption("Servidor")
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
 
-            # Dibuja el tablero y las marcas en la pantalla del servidor
-            screen.fill((255, 255, 255))  # Fondo blanco
-            for row in range(BOARD_SIZE):
-                for col in range(BOARD_SIZE):
-                    pygame.draw.rect(screen, (0, 0, 0), (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)
-                    if board[row][col] != ' ':
-                        font = pygame.font.Font(None, 100)
-                        text_surface = font.render(board[row][col], True, (0, 0, 255) if board[row][col] == 'X' else (255, 0, 0))
-                        screen.blit(text_surface, (col * CELL_SIZE + 20, row * CELL_SIZE + 20))
+    # Configuración del socket del servidor
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 5555))  # Puerto de escucha
+    server_socket.listen(1)  # Espera una conexión de cliente
 
-            pygame.display.flip()
-            clock.tick(60)  # Limitar la tasa de actualización de la pantalla
+    print("Esperando la conexión del cliente...")
 
-            # Verificar ganador
-            winner = check_winner(board)
+    # Acepta la conexión del cliente
+    client_socket, address = server_socket.accept()
+    print("Cliente conectado desde:", address)
 
-            if winner is not None:
-                print(f"¡{winner} ha ganado!")
-                running = False
+    # Configura el socket del cliente como no bloqueante
+    client_socket.setblocking(0)
 
-    finally:
-        pygame.quit()
-        client_socket.close()
+    running = True
+    while running:
+        pygame.event.pump()  # Procesa eventos de Pygame
 
-def check_winner(board):
-    # Verificar filas
-    for row in board:
-        if row[0] == row[1] == row[2] != ' ':
-            return row[0]
+        ready_to_read, _, _ = select.select([client_socket], [], [], 0.1)  # Verifica si hay datos para leer en el socket
+        if client_socket in ready_to_read:
+            data = client_socket.recv(4096)
+            if data:
+                new_board = pickle.loads(data)
+                if new_board != board:
+                    board[:] = new_board
 
-    # Verificar columnas
-    for col in range(BOARD_SIZE):
-        if board[0][col] == board[1][col] == board[2][col] != ' ':
-            return board[0][col]
+        running = handle_input(client_socket)
+        draw_board(screen)
 
-    # Verificar diagonales
-    if board[0][0] == board[1][1] == board[2][2] != ' ':
-        return board[0][0]
-    if board[0][2] == board[1][1] == board[2][0] != ' ':
-        return board[0][2]
+    pygame.quit()
 
-    # Si no hay ganador
-    return None
+    # Cierra los sockets
+    client_socket.close()
+    server_socket.close()
 
-# Configuración del servidor
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('localhost', 5555))  # Asigna una dirección y puerto
-server_socket.listen(1)  # Espera una conexión (Jugador 2)
-
-print("Esperando la conexión del Jugador 2...")
-
-# Espera la conexión del cliente (Jugador 2)
-client_socket, address = server_socket.accept()
-print("Jugador 2 conectado desde:", address)
-
-# Inicia un hilo para manejar la conexión con el cliente (Jugador 2)
-handle_client(client_socket)
-
-# Cierra el socket del servidor
-server_socket.close()
+if __name__ == "__main__":
+    main()
