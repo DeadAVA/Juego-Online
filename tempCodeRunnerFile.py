@@ -1,0 +1,1 @@
+py.display.set_caption("Menú de Juego")
