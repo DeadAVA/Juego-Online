@@ -9,7 +9,7 @@ Para poder ejecutar este proyecto, necesitas tener instalado lo siguiente:
 Para instalar Python en Windows es sencillo solo debes de descargarlo en la página oficial de
 Python al momento de instalarlo, marcamos la casilla donde dice Add python.exe to PATH
 
-<img src="images/pytohn" width="90%"> | <img src="images/Player2.png" width="90%">
+<img src="images/python" width="90%"> 
 
 En caso de Linux, utilizamos la distribución de Ubuntu, entonces para la instalación de Python
 usamos el comando:
