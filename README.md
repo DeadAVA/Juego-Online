@@ -17,8 +17,14 @@ usamos el comando:
 ```ps
 sudo apt install python3 python3-pip
 ```
-
-- Install the following package dependencies using pip:
+Si usas Windows estas librerías las puedes instalar en la terminal de VS CODE o en caso de tener
+alguna distribución de Linux, usas la terminal del sistema, en dado caso de no tenerlas instaladas Para ello, ocupamos lo siguiente.
+- Instalar las siguientes librerias usando pip:
+- a. pygame
+- b. socket
+- c. threading
+- d. pickle
+- e. tkinter
 ```ps
 pip install pygame
 ```
