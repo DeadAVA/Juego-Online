@@ -39,15 +39,12 @@ pip install pygame
 
 ---
 ## Reglas del juego
--Objetivo: Ser el primero en alinear tres de tus símbolos (X o O) horizontalmente, verticalmente o
-diagonalmente.
--Turnos: El juego alterna turnos entre dos jugadores: uno juega con X y el otro con O.
-Movimiento: Los jugadores colocan su símbolo en una celda vacía del tablero 3x3 durante su
-turno.
--Ganador: El primer jugador en alinear tres símbolos gana. Si todas las celdas están ocupadas sin
-un ganador, el juego termina en empate.
--Chat: Los jugadores pueden comunicarse entre sí a través de un chat en tiempo real mientras
-juegan.
+- Objetivo: Ser el primero en alinear tres de tus símbolos (X o O) horizontalmente, verticalmente o  diagonalmente.
+- Turnos: El juego alterna turnos entre dos jugadores: uno juega con X y el otro con O.
+- Movimiento: Los jugadores colocan su símbolo en una celda vacía del tablero 3x3 durante su turno.
+- Ganador: El primer jugador en alinear tres símbolos gana. Si todas las celdas están ocupadas sin un ganador, el juego termina en empate.
+- Chat: Los jugadores pueden comunicarse entre sí a través de un chat en tiempo real mientras juegan.
+
 
 ---
 ## How to Play?
