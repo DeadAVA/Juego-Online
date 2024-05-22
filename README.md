@@ -47,18 +47,40 @@ pip install pygame
 
 
 ---
-## How to Play?
-- Clone the Repository
+## Como jugar?
+Puedes hacerlo ejecutando el archivo llamado menu.py, para iniciar usando el comando Python menú.py o ejecutándolo
+directamente usando un IDE, esto para ambos jugadores, para crear una partida, un jugador debe
+de crear la sala y el otro debe unirse a dicha sala.
+- O en caso de que estes en linux, puedes descargarlo desde la terminal. Para eso ocupas git
+
+## Como se instala git?
+Para instalar Git en Ubuntu, puedes seguir estos pasos:
+
+- Instala git
+```
+sudo apt install git
+```
+- Verificar la instalación:
+```
+git --version
+```
+Configurar Git:
+```
+git config --global user.name "Tu Nombre"
+git config --global user.email "tuemail@example.com"
+```
+Una vez teniendo instalado git, seguimos las siguientes instrucciones para poder jugar Tic Tac Toe
+- Clona el repositorio
 ```
 git clone https://github.com/DhilipSanjay/Tic-Tac-Toe.git
 ```
-- Move to the Directory `04 TicTacToe - Socket + Pygame`
+- Entra a la carpeta del juego `Juego-Online`
 ```
-cd "Tic-Tac-Toe\04 TicTacToe - Socket + Pygame"
+cd "Juego-Online"
 ```
-- Start the Server
+- Inicia el juego
 ```
-python server.py
+python menu.py
 ```
 - Start two players and enter the IP address. If both the players are on same host, use the loopback IP `127.0.0.1` or `localhost`.
     - Player 1
